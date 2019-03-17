@@ -9,36 +9,29 @@ import time
 import urllib.request
 import requests
 from selenium import webdriver
+from selenium.webdriver.chrome import options as cOptions
+from selenium.webdriver.firefox import options as fOptions
 from pathvalidate import sanitize_filename, ValidationError, validate_filename
 from selenium.webdriver.common.keys import Keys
 
 def get_webdriver():
     try:
-        return webdriver.Chrome()
+        options = cOptions.Options()
+        options.headless = True
+        return webdriver.Chrome(options=options)
     except:
         try:
-            return webdriver.Firefox()
+            options = fOptions.Options()
+            options.headless = True
+            return webdriver.Firefox(options=options)
         except:
             return None
 
 def download_src(src, dir):
     global i
-    local_filename = src.rsplit('/')
-    local_filename = local_filename[len(local_filename) - 1]
-    splitted = local_filename.rsplit('.')
-    ext = splitted[-1]
-    if len(splitted) < 2 \
-        or ext.lower() not in VALID_EXTENSIONS:
-            local_filename = local_filename + '.jpg'
+    global query
+    local_filename = './' + dir + '/' + query + '_' + str(i) + '.jpg'
 
-    try:
-        validate_filename(local_filename)
-    except ValidationError:
-        local_filename = sanitize_filename(local_filename)
-
-    local_filename = './' + dir + '/' + local_filename
-
-    if os.path.isfile(local_filename): return #this file had been downloaded already
     try:
         headers = requests.utils.default_headers()
         headers.update(
@@ -70,18 +63,13 @@ def sleep05(count=1):
 
 #init
 VALID_SIZES = ['l','m','s']
-VALID_EXTENSIONS = ['jpg', 'png', 'jpeg', 'gif', 'svg']
 
 i = 0
-
+downloaded_src = list()
 #user input
 query = input('Enter query:')
 num   = int(input('Pictures count:'))
 size  = str(input('Select images size:\nL - Large\nM - Medium\nS - Small\nLeave empty for any\nChoose size: '))
-
-#dir creation
-if not os.path.isdir('./' + query):
-    os.mkdir('./' + query)
 
 #start browser
 drv = get_webdriver()
@@ -95,6 +83,11 @@ try:
     q.send_keys(query)
     q.send_keys(Keys.ENTER)
     sleep05(3)
+
+    # dir creation
+    query = query.replace(' ', '_')
+    if not os.path.isdir('./' + query):
+        os.mkdir('./' + query)
 
     #set size
     size = size.lower().replace(' ', '')
@@ -127,8 +120,9 @@ try:
 
             for img in drv.find_elements_by_class_name('irc_mi'):
                 src = img.get_attribute('src')
-                if src != None and i < num:
+                if src != None and i < num and src not in downloaded_src:
                     download_src(src, query)
+                    downloaded_src.append(src)
             try:
                 if not btn_next.is_displayed():
                     print('No more images mathing your search terms were found.')
