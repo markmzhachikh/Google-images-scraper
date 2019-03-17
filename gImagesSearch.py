@@ -26,9 +26,9 @@ def download_src(src, dir):
     local_filename = src.rsplit('/')
     local_filename = local_filename[len(local_filename) - 1]
     splitted = local_filename.rsplit('.')
-    ext = splitted[len(splitted)-1]
+    ext = splitted[-1]
     if len(splitted) < 2 \
-        or ext not in VALID_EXTENSIONS:
+        or ext.lower() not in VALID_EXTENSIONS:
             local_filename = local_filename + '.jpg'
 
     try:
@@ -54,14 +54,16 @@ def download_src(src, dir):
         print(str(i) + ': ' + local_filename)
     except:
         try:
-            time.sleep(0.5)
+            sleep05()
             urllib.request.urlretrieve(src, local_filename)
             i += 1
             print(str(i) + ': ' + local_filename)
         except Exception as e:
             print(str(e))
 
-
+def sleep05(count=1):
+    for j in range(count):
+        time.sleep(0.5)
 #_______________________________________________________________________________________________________________________
 #main
 #_______________________________________________________________________________________________________________________
@@ -92,29 +94,29 @@ try:
     q = drv.find_element_by_name('q')
     q.send_keys(query)
     q.send_keys(Keys.ENTER)
-    time.sleep(1.5)
+    sleep05(3)
 
     #set size
     size = size.lower().replace(' ', '')
     if size in VALID_SIZES:
         tools_btn = drv.find_element_by_id('hdtb-tls')
         tools_btn.click()
-        time.sleep(0.5)
+        sleep05()
         size_btn = drv.find_element_by_class_name('hdtb-mn-hd')
         size_btn.click()
-        time.sleep(0.5)
+        sleep05()
         size_opt = drv.find_element_by_id('isz_' + size.replace('s','i'))
         size_opt.click()
-        time.sleep(0.5)
+        sleep05()
 
     #open image properties form
     btns = drv.find_elements_by_class_name('rg_ic')
-    time.sleep(1)
+    sleep05(2)
     if len(btns):
         for btn in btns:
             try:
                 btn.click()
-                time.sleep(0.5)
+                sleep05()
                 break
             except:
                 continue
@@ -132,10 +134,10 @@ try:
                     print('No more images mathing your search terms were found.')
                     break
                 btn_next.click()
-                time.sleep(0.5)
+                sleep05()
             except Exception as e:
                 print(str(e))
-                time.sleep(0.5)
+                sleep05()
                 continue
     else:
         print('No results containing all your search terms were found.')
