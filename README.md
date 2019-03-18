@@ -9,7 +9,7 @@ Script written in Python 3.7 utilizing Selenium WebDriver library
 tested in Windows
 
 ### Installation guide
-[Clone repo](https://github.com/Av1chem/HW/archive/master.zip) and run terminal command in the repo folder:
+[Clone repo](https://github.com/Av1chem/HW/archive/master.zip) and run command in terminal at the repo folder:
 ```
 py -m pip install -r requirements.txt
 ```
